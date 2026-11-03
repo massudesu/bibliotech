@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BiblioTech - Autenticação{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <script src="https://unpkg.com/imask"></script>
+</head>
+
+<body class="auth-body">
+    <div class="auth-container">
+        <div class="auth-top">
+            <a href="{% url 'tela_inicial' %}" class="back-button" title="Voltar ao início">
+                &lt;
+            </a>
+            <div class="auth-logo-top">
+                <img src="{% static 'images/logo_texto2.png' %}" alt="BiblioTech" class="auth-logo-icon-img"> 
+            </div>
+        </div>
+
+        {% if messages %}
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                {% for message in messages %}
+                <div class="auth-error" style="{% if message.tags == 'success' %}background: rgba(16, 185, 129, 0.2); border-color: #10b981; color: #a7f3d0;{% endif %}">
+                    <p>{{ message }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <main>
+            {% block content %}
+            {% endblock %} 
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const phoneInput = document.getElementById('id_telefone');
+            if (phoneInput && typeof IMask !== 'undefined') {
+                IMask(phoneInput, {
+                    mask: [
+                        { mask: '(00) 0000-0000' }, 
+                        { mask: '(00) 00000-0000' } 
+                    ]
+                });
+            }
+
+            function setupPasswordToggle(passwordFieldId, toggleIconId) {
+                const passwordField = document.getElementById(passwordFieldId);
+                const toggleIcon = document.getElementById(toggleIconId);
+
+                if (passwordField && toggleIcon) {
+                    toggleIcon.addEventListener('click', function() {
+                        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+                        passwordField.setAttribute('type', type);
+                        toggleIcon.textContent = type === 'password' ? '👁️' : '🙈';
+                    });
+                }
+            }
+
+            setupPasswordToggle('id_password', 'togglePasswordIcon');
+            setupPasswordToggle('id_password1', 'togglePasswordIcon'); 
+            setupPasswordToggle('id_password2', 'togglePassword2Icon'); 
+        });
+    </script>
+</body>
+</html>

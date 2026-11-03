@@ -1,0 +1,61 @@
+{% extends 'usuarios/base_login.html' %}
+{% load static %}
+
+{% block title %}BiblioTech - Cadastro de Aluno{% endblock %}
+
+{% block content %}
+<form method="POST" class="auth-form" autocomplete="off">
+    {% csrf_token %}
+
+    <div style="text-align: center; margin-bottom: 6px;">
+        <h2 style="font-size: 1.3rem; color: var(--text-primary); font-weight: 700;">Criar Nova Conta</h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Preencha seus dados para reservar livros online</p>
+    </div>
+            
+    {% for field in form %}
+        {% if field.name == 'password1' %}
+            <div class="auth-input-group password-group">
+                {{ field.label_tag }}
+                {{ field }}
+                <span class="password-toggle" id="togglePasswordIcon" title="Mostrar/ocultar senha">👁️</span>
+                {% if field.errors %}
+                    <small class="auth-field-error">{{ field.errors|first }}</small>
+                {% endif %}
+            </div>
+
+        {% elif field.name == 'password2' %}
+            <div class="auth-input-group password-group">
+                {{ field.label_tag }}
+                {{ field }}
+                <span class="password-toggle" id="togglePassword2Icon" title="Mostrar/ocultar senha">👁️</span>
+                {% if field.errors %}
+                    <small class="auth-field-error">{{ field.errors|first }}</small>
+                {% endif %}
+            </div>
+
+        {% else %}
+            <div class="auth-input-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}
+                    <small class="auth-field-error">{{ field.errors|first }}</small>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    {% if form.non_field_errors %}
+        <div class="auth-error">
+            {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <button type="submit" class="btn-auth">Finalizar Cadastro</button>
+
+    <div style="text-align: center; margin-top: 6px;">
+        <a href="{% url 'login' %}" class="nao-tem-login">Já possui uma conta? Faça login</a>
+    </div>
+</form>
+{% endblock %}

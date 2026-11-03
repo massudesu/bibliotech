@@ -1,0 +1,134 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}BiblioTech - Painel Administrativo{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    
+    <!-- Hero Banner Admin -->
+    <div class="dashboard-hero">
+        <div class="hero-welcome">
+            <span class="hero-badge">⚡ Painel do Bibliotecário & Gestor</span>
+            <h2>Olá, Administrador {{ user.first_name|default:user.username }}!</h2>
+            <p>Gerencie o fluxo completo da biblioteca: atenda solicitações de reserva, controle empréstimos ativos, monitore devoluções e mantenha o acervo atualizado.</p>
+        </div>
+    </div>
+
+    <!-- Estatísticas Rápidas do Admin -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">📚</div>
+            <div class="stat-info">
+                <h3>{{ total_livros }}</h3>
+                <p>Títulos no Acervo</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="color: var(--color-warning);">⏳</div>
+            <div class="stat-info">
+                <h3>{{ reservas_pendentes }}</h3>
+                <p>Pendentes de Separação</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="color: var(--color-info);">📖</div>
+            <div class="stat-info">
+                <h3>{{ reservas_ativas }}</h3>
+                <p>Empréstimos Ativos</p>
+            </div>
+        </div>
+
+        <div class="stat-card" {% if reservas_atrasadas > 0 %}style="border-color: var(--color-danger); background: var(--color-danger-bg);"{% endif %}>
+            <div class="stat-icon" style="color: var(--color-danger);">⚠️</div>
+            <div class="stat-info">
+                <h3 {% if reservas_atrasadas > 0 %}style="color: var(--color-danger);"{% endif %}>{{ reservas_atrasadas }}</h3>
+                <p>Livros Atrasados</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="color: var(--accent-gold);">👥</div>
+            <div class="stat-info">
+                <h3>{{ total_usuarios }}</h3>
+                <p>Alunos Cadastrados</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ações Administrativas -->
+    <section class="actions-section">
+        <h3>🛠️ Ferramentas de Gestão</h3>
+        
+        <div class="actions-grid">
+            <a href="{% url 'reservas_adm' %}" class="action-card">
+                <div class="action-card-header">
+                    <div class="action-card-icon">
+                        <img src="{% static 'images/open-book2.png' %}" alt="Reservas">
+                    </div>
+                    <h4>Gerenciar Reservas</h4>
+                </div>
+                <p>Atualize o status dos pedidos: coloque em separação, libere no balcão e confirme devoluções.</p>
+                <div class="action-card-footer">
+                    <span>Acessar painel de reservas &rarr;</span>
+                </div>
+            </a>
+
+            <a href="{% url 'adicionar_livro' %}" class="action-card">
+                <div class="action-card-header">
+                    <div class="action-card-icon">
+                        <img src="{% static 'images/edit2.png' %}" alt="Novo Livro">
+                    </div>
+                    <h4>Cadastrar Novo Livro</h4>
+                </div>
+                <p>Adicione novos títulos com foto de capa, categorias, corredor, prateleira e quantidade em estoque.</p>
+                <div class="action-card-footer">
+                    <span>Cadastrar exemplar &rarr;</span>
+                </div>
+            </a>
+
+            <a href="{% url 'catalogo' %}" class="action-card">
+                <div class="action-card-header">
+                    <div class="action-card-icon">
+                        <img src="{% static 'images/search2.png' %}" alt="Catálogo">
+                    </div>
+                    <h4>Catálogo Completo</h4>
+                </div>
+                <p>Visualize e edite as informações dos livros cadastrados, consulte estoque e exclua itens obsoletos.</p>
+                <div class="action-card-footer">
+                    <span>Ver acervo &rarr;</span>
+                </div>
+            </a>
+
+            <a href="{% url 'perfil' %}" class="action-card">
+                <div class="action-card-header">
+                    <div class="action-card-icon">
+                        <img src="{% static 'images/user2.png' %}" alt="Perfil">
+                    </div>
+                    <h4>Meu Perfil</h4>
+                </div>
+                <p>Gerencie suas credenciais de acesso de administrador e foto de exibição no sistema.</p>
+                <div class="action-card-footer">
+                    <span>Editar perfil &rarr;</span>
+                </div>
+            </a>
+
+            <a href="{% url 'creditos' %}" class="action-card">
+                <div class="action-card-header">
+                    <div class="action-card-icon">
+                        <img src="{% static 'images/communication2.png' %}" alt="Créditos">
+                    </div>
+                    <h4>Equipe & TCC</h4>
+                </div>
+                <p>Informações técnicas do Trabalho de Conclusão de Curso e ficha de atribuição dos integrantes.</p>
+                <div class="action-card-footer">
+                    <span>Ver ficha técnica &rarr;</span>
+                </div>
+            </a>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

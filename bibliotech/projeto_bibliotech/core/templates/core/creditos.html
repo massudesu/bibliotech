@@ -1,0 +1,84 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}BiblioTech - Sobre o Projeto & Equipe do TCC{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    
+    <!-- Cabeçalho -->
+    <div class="page-header">
+        <div class="page-header-left">
+            <a href="{% if user.is_authenticated %}{% url 'home' %}{% else %}{% url 'tela_inicial' %}{% endif %}" class="back-arrow" title="Voltar">&lt;</a>
+            <div>
+                <h1>Sobre o Projeto & Ficha Técnica</h1>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">
+                    Trabalho de Conclusão de Curso (TCC) - Sistema de Gestão de Biblioteca Escolar
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero de Apresentação do TCC -->
+    <div class="dashboard-hero creditos-hero-box" style="flex-direction: column; align-items: flex-start; gap: 16px;">
+        <span class="hero-badge">🎓 Projeto de Conclusão de Curso</span>
+        <h2 style="font-size: 2rem; margin: 0;">BiblioTech: Transformação Digital da Biblioteca Escolar</h2>
+        <p style="max-width: 900px; color: var(--text-secondary); line-height: 1.6;">
+            O <strong>BiblioTech</strong> foi desenvolvido com o objetivo de modernizar e automatizar os processos de empréstimo, reserva e catalogação de acervos em instituições de ensino. O sistema proporciona autonomia aos estudantes para pesquisar e reservar títulos de forma digital, ao mesmo tempo em que oferece aos bibliotecários um painel completo para controle de fluxo, prazos e inventário.
+        </p>
+
+        <!-- Tags Tecnológicas -->
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px;">
+            <span class="pill-filter active" style="font-size: 0.82rem;">🐍 Python 3.13</span>
+            <span class="pill-filter active" style="font-size: 0.82rem;">🌐 Django 5.2</span>
+            <span class="pill-filter active" style="font-size: 0.82rem;">🗄️ SQLite 3</span>
+            <span class="pill-filter active" style="font-size: 0.82rem;">🎨 CSS3 & Design System Customizado</span>
+            <span class="pill-filter active" style="font-size: 0.82rem;">⚡ JavaScript ES6+</span>
+        </div>
+    </div>
+
+    <!-- Integrantes da Equipe -->
+    <section>
+        <h3 class="category-tab" style="margin-bottom: 24px;">👥 Integrantes da Equipe & Atribuições</h3>
+
+        <div class="team-grid">
+            {% for membro in equipe %}
+            <div class="team-card">
+                <div class="team-card-header">
+                    <div class="team-avatar-initial">
+                        {{ membro.nome|slice:":1" }}
+                    </div>
+                    <div class="team-member-info">
+                        <h3>{{ membro.nome }}</h3>
+                        <span class="role-badge">{{ membro.cargo }}</span>
+                    </div>
+                </div>
+                <p>{{ membro.desc }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Metodologia e Destaques Acadêmicos -->
+    <section style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-sm); margin-top: 10px;">
+        <h3 style="font-size: 1.3rem; color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <span>📋</span> Metodologia & Funcionalidades Desenvolvidas
+        </h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 18px; color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6;">
+            <div>
+                <strong style="color: var(--accent-gold);">🔍 Busca Inteligente & Catálogo:</strong>
+                <p>Mecanismo de pesquisa em tempo real com debounce, filtragem por categorias e carrosséis responsivos por gênero.</p>
+            </div>
+            <div>
+                <strong style="color: var(--accent-gold);">🔄 Gestão Completa de Reservas:</strong>
+                <p>Ciclo de vida inteligente de empréstimo: solicitação, preparação em 2 dias úteis, notificação de balcão e devolução.</p>
+            </div>
+            <div>
+                <strong style="color: var(--accent-gold);">🔒 Segurança & Perfis:</strong>
+                <p>Diferenciação clara entre perfil de Aluno e Administrador, autenticação robusta e upload seguro de fotos de perfil.</p>
+            </div>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

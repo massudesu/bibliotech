@@ -1,0 +1,57 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}BiblioTech - Atualizar Reserva{% endblock %}
+
+{% block content %}
+<div class="form-page-container">
+    
+    <div class="page-header">
+        <div class="page-header-left">
+            <a href="{% url 'reservas_adm' %}" class="back-arrow" title="Voltar às reservas">&lt;</a>
+            <div>
+                <h1>Atualizar Status da Reserva</h1>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">
+                    Livro: <strong>{{ reserva.livro.titulo }}</strong> | Solicitante: <strong>{{ reserva.usuario.first_name|default:reserva.usuario.username }} {{ reserva.usuario.last_name }}</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modern-form-card">
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="id_status">Status Atual da Reserva *</label>
+                {{ form.status }}
+                {% if form.status.errors %}<div class="form-field-error">{{ form.status.errors|first }}</div>{% endif %}
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_data_emprestimo">Data de Retirada / Empréstimo</label>
+                    {{ form.data_emprestimo }}
+                    {% if form.data_emprestimo.errors %}<div class="form-field-error">{{ form.data_emprestimo.errors|first }}</div>{% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="id_data_devolucao">Data Prevista de Devolução</label>
+                    {{ form.data_devolucao }}
+                    {% if form.data_devolucao.errors %}<div class="form-field-error">{{ form.data_devolucao.errors|first }}</div>{% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_observacoes">Observações Internas do Bibliotecário</label>
+                {{ form.observacoes }}
+                {% if form.observacoes.errors %}<div class="form-field-error">{{ form.observacoes.errors|first }}</div>{% endif %}
+            </div>
+
+            <button type="submit" class="btn-save">
+                💾 Confirmar Alterações
+            </button>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

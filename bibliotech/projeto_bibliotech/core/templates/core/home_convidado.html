@@ -1,0 +1,120 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}BiblioTech - Biblioteca Digital Escolar{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    
+    <!-- Hero Banner Convidado -->
+    <div class="dashboard-hero">
+        <div class="hero-welcome">
+            <span class="hero-badge">📖 Bem-vindo(a) ao BiblioTech</span>
+            <h2>A biblioteca da sua escola, mais moderna e conectada.</h2>
+            <p>Descubra centenas de livros disponíveis para leitura e pesquisa escolar. Faça login com sua conta de aluno para reservar exemplares ou cadastre-se agora mesmo.</p>
+            <div style="display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap;">
+                <a href="{% url 'login' %}" class="btn-action btn-reserve" style="font-size: 0.95rem; padding: 10px 22px;">🔑 Fazer Login</a>
+                <a href="{% url 'cadastro' %}" class="btn-action btn-edit" style="font-size: 0.95rem; padding: 10px 22px;">📝 Criar Conta de Aluno</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estatísticas de Apresentação -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">📚</div>
+            <div class="stat-info">
+                <h3>{{ total_livros }}</h3>
+                <p>Livros Disponíveis</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="color: var(--accent-gold);">🏷️</div>
+            <div class="stat-info">
+                <h3>{{ total_categorias }}</h3>
+                <p>Gêneros e Categorias</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="color: var(--color-success);">⚡</div>
+            <div class="stat-info">
+                <h3>100%</h3>
+                <p>Reserva Online sem Filas</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Destaques do Acervo (se houver) -->
+    {% if livros_destaque %}
+    <section class="category-block">
+        <h3 class="category-tab">🌟 Destaques do Acervo</h3>
+        <div class="book-grid">
+            {% for livro in livros_destaque %}
+            <a href="{% url 'livro_detalhe' livro.id %}" class="book-card">
+                <div class="book-card-cover">
+                    <img src="{{ livro.capa.url }}" alt="{{ livro.titulo }}" onerror="this.src='{% static 'images/open-book2.png' %}';">
+                    {% if livro.is_available %}
+                        <span class="book-card-badge badge-available">Disponível</span>
+                    {% else %}
+                        <span class="book-card-badge badge-unavailable">Esgotado</span>
+                    {% endif %}
+                </div>
+                <div class="book-card-body">
+                    <h4 class="book-card-title">{{ livro.titulo }}</h4>
+                    <span class="book-card-author">{{ livro.autor }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Ações do Visitante -->
+    <section class="actions-section">
+        <h3>🔍 Conheça o Sistema</h3>
+        <div class="actions-grid">
+            <a href="{% url 'catalogo' %}" class="action-card">
+                <div class="action-card-header">
+                    <div class="action-card-icon">
+                        <img src="{% static 'images/search2.png' %}" alt="Catálogo">
+                    </div>
+                    <h4>Explorar Catálogo</h4>
+                </div>
+                <p>Veja todos os títulos cadastrados, leia sinopses e consulte a localização de cada exemplar nas estantes.</p>
+                <div class="action-card-footer">
+                    <span>Ver catálogo &rarr;</span>
+                </div>
+            </a>
+
+            <a href="{% url 'creditos' %}" class="action-card">
+                <div class="action-card-header">
+                    <div class="action-card-icon">
+                        <img src="{% static 'images/communication2.png' %}" alt="Créditos">
+                    </div>
+                    <h4>Equipe do TCC</h4>
+                </div>
+                <p>Conheça os estudantes responsáveis pela concepção, modelagem, desenvolvimento e testes do projeto.</p>
+                <div class="action-card-footer">
+                    <span>Ver integrantes &rarr;</span>
+                </div>
+            </a>
+
+            <a href="https://forms.gle/bautCQPkYsk7T8LGA" target="_blank" rel="noopener noreferrer" class="action-card">
+                <div class="action-card-header">
+                    <div class="action-card-icon">
+                        <img src="{% static 'images/star2.png' %}" alt="Avaliar">
+                    </div>
+                    <h4>Avalie o BiblioTech</h4>
+                </div>
+                <p>Ajude nossa equipe enviando um feedback rápido sobre a experiência e a interface do sistema.</p>
+                <div class="action-card-footer">
+                    <span>Avaliar &rarr;</span>
+                </div>
+            </a>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

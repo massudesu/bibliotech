@@ -1,0 +1,38 @@
+{% extends 'usuarios/base_login.html' %}
+{% load static %}
+
+{% block title %}BiblioTech - Entrar na Conta{% endblock %}
+
+{% block content %}
+<form method="POST" class="auth-form" autocomplete="on">
+    {% csrf_token %}
+            
+    {% if form.non_field_errors %}
+        <div class="auth-error">
+            <p>Usuário ou senha inválidos.</p>
+        </div>
+    {% endif %}
+
+    <div class="auth-input-group">
+        <label for="id_username">Nome de Usuário</label>
+        {{ form.username }}
+        {% if form.username.errors %}<small class="auth-field-error">{{ form.username.errors|first }}</small>{% endif %}
+    </div>
+
+    <div class="auth-input-group password-group">
+        <label for="id_password">Senha de Acesso</label>
+        {{ form.password }}
+        <span class="password-toggle" id="togglePasswordIcon" title="Mostrar/ocultar senha">👁️</span>
+        {% if form.password.errors %}
+            <small class="auth-field-error">{{ form.password.errors|first }}</small>
+        {% endif %}
+    </div>
+
+    <button type="submit" class="btn-auth">Entrar no Sistema</button>
+
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 8px;">
+        <a href="{% url 'cadastro' %}" class="nao-tem-login">Não tem uma conta? Cadastre-se aqui</a>
+        <a href="{% url 'catalogo' %}" style="font-size: 0.82rem; color: var(--text-muted); text-decoration: none;">Acessar catálogo como visitante &rarr;</a>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}BiblioTech - Confirmar Exclusão{% endblock %}
+
+{% block content %}
+<div class="form-page-container">
+
+    <div class="page-header">
+        <div class="page-header-left">
+            <a href="{% url 'livro_detalhe' livro.id %}" class="back-arrow" title="Cancelar e voltar">&lt;</a>
+            <h1>Confirmar Exclusão de Livro</h1>
+        </div>
+    </div>
+
+    <div class="modern-form-card" style="text-align: center; border-color: var(--color-danger);">
+        <form method="POST">
+            {% csrf_token %}
+
+            <div style="font-size: 3rem; margin-bottom: 12px;">⚠️</div>
+            <h2 style="font-size: 1.4rem; color: var(--color-danger); margin-bottom: 8px;">Atenção: Ação Irreversível</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                Tem certeza de que deseja remover permanentemente este título do acervo? Todas as informações associadas serão excluídas.
+            </p>
+
+            <div style="display: flex; align-items: center; justify-content: center; gap: 18px; background: var(--bg-secondary); padding: 18px; border-radius: var(--radius-md); border: 1px solid var(--border-color); max-width: 440px; margin: 0 auto 28px auto;">
+                <img src="{{ livro.capa.url }}" alt="{{ livro.titulo }}" onerror="this.src='{% static 'images/open-book2.png' %}';" 
+                     style="width: 60px; height: 85px; object-fit: cover; border-radius: 6px; box-shadow: var(--shadow-sm);">
+                <div style="text-align: left;">
+                    <h3 style="font-size: 1.1rem; color: var(--text-primary); margin-bottom: 4px;">{{ livro.titulo }}</h3>
+                    <p style="font-size: 0.85rem; color: var(--accent-gold); margin: 0;">Autor: {{ livro.autor }}</p>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin: 2px 0 0 0;">Estoque atual: {{ livro.quantidade }} exemplar(es)</p>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
+                <a href="{% url 'livro_detalhe' livro.id %}" class="btn-action btn-edit" style="text-decoration: none;">
+                    ✕ Cancelar
+                </a>
+                <button type="submit" class="btn-action btn-delete">
+                    🗑️ Sim, Excluir do Acervo
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

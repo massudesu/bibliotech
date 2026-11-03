@@ -1,0 +1,161 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load phone_filters %}
+
+{% block title %}BiblioTech - Perfil de {{ usuario.first_name|default:usuario.username }}{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+
+    <div class="page-header">
+        <div class="page-header-left">
+            <a href="javascript:history.back()" class="back-arrow" title="Voltar">&lt;</a>
+            <div>
+                <h1>Perfil do Usuário</h1>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">
+                    {% if request.user == usuario %}
+                        Gerencie suas informações e foto de identificação
+                    {% else %}
+                        Visualização de cadastro de aluno (Modo Administrador)
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-card-modern">
+        
+        <!-- Coluna do Avatar / Foto -->
+        <div class="profile-avatar-column">
+            {% if request.user == usuario %}
+                <form method="POST" enctype="multipart/form-data" id="foto-perfil-form" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+                    {% csrf_token %}
+                    
+                    <label for="id_foto_perfil" class="profile-avatar-wrapper" title="Clique para alterar sua foto de perfil">
+                        <img src="{% if usuario.foto_perfil %}{{ usuario.foto_perfil.url }}{% else %}{% static 'images/user2.png' %}{% endif %}" 
+                             alt="Foto de Perfil" 
+                             id="profile-pic-preview"
+                             onerror="this.src='{% static 'images/user2.png' %}';">
+                        <div class="avatar-edit-overlay">
+                            📷 Alterar Foto
+                        </div>
+                    </label>
+                    
+                    <div style="display: none;">
+                        {{ foto_form.foto_perfil }}
+                    </div>
+
+                    {% if foto_form.foto_perfil.errors %}
+                        <div class="form-field-error">{{ foto_form.foto_perfil.errors|first }}</div>
+                    {% endif %}
+                    
+                    <span style="font-size: 0.78rem; color: var(--text-muted); text-align: center; margin-top: 8px;">
+                        Clique na imagem para enviar uma nova foto
+                    </span>
+                </form>
+            {% else %}
+                <div class="profile-avatar-wrapper" style="cursor: default;">
+                    <img src="{% if usuario.foto_perfil %}{{ usuario.foto_perfil.url }}{% else %}{% static 'images/user2.png' %}{% endif %}" 
+                         alt="Foto de Perfil"
+                         onerror="this.src='{% static 'images/user2.png' %}';">
+                </div>
+            {% endif %}
+
+            <div style="text-align: center;">
+                <h2 style="font-size: 1.4rem; color: var(--text-primary); margin-bottom: 2px;">
+                    {{ usuario.first_name|default:usuario.username }} {{ usuario.last_name }}
+                </h2>
+                <span class="hero-badge" style="font-size: 0.75rem; margin-top: 4px;">
+                    {% if usuario.is_staff %}⭐ Bibliotecário / Gestor{% else %}🎓 Aluno da Escola{% endif %}
+                </span>
+            </div>
+        </div>
+
+        <!-- Coluna de Detalhes -->
+        <div>
+            <h3 style="font-size: 1.2rem; color: var(--text-primary); margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+                📋 Informações Cadastrais
+            </h3>
+
+            <div class="profile-details-grid">
+                <div class="profile-detail-card">
+                    <div class="label">Nome Completo</div>
+                    <div class="value">{{ usuario.first_name }} {{ usuario.last_name }}</div>
+                </div>
+
+                <div class="profile-detail-card">
+                    <div class="label">Nome de Usuário (Login)</div>
+                    <div class="value">@{{ usuario.username }}</div>
+                </div>
+
+                <div class="profile-detail-card">
+                    <div class="label">E-mail Institucional</div>
+                    <div class="value">{{ usuario.email|default:"(Não informado)" }}</div>
+                </div>
+
+                <div class="profile-detail-card">
+                    <div class="label">Telefone de Contato</div>
+                    <div class="value">{{ usuario.telefone|phone_format|default:"(Não informado)" }}</div>
+                </div>
+
+                <div class="profile-detail-card">
+                    <div class="label">Identidade de Gênero</div>
+                    <div class="value">{{ usuario.get_genero_display|default:"(Não informado)" }}</div>
+                </div>
+
+                <div class="profile-detail-card">
+                    <div class="label">Livros em Andamento</div>
+                    <div class="value" style="color: var(--accent-gold); font-size: 1.25rem;">
+                        {{ livros_reservados_count }} exemplar(es)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reservas Ativas do Aluno (se houver) -->
+            {% if reservas_ativas %}
+            <div style="margin-top: 24px;">
+                <h4 style="font-size: 1.05rem; color: var(--text-primary); margin-bottom: 10px;">
+                    📖 Livros atualmente com este usuário:
+                </h4>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px;">
+                    {% for res in reservas_ativas %}
+                    <li style="background: var(--bg-secondary); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+                        <a href="{% url 'livro_detalhe' res.livro.id %}" style="font-weight: 600; color: inherit;">
+                            {{ res.livro.titulo }}
+                        </a>
+                        <span class="status-badge {{ res.status }}">{{ res.get_status_display }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fotoInput = document.getElementById('id_foto_perfil');
+        const fotoForm = document.getElementById('foto-perfil-form'); 
+        const imagePreview = document.getElementById('profile-pic-preview');
+
+        if (fotoInput && fotoForm) {
+            fotoInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        if (imagePreview) {
+                            imagePreview.src = e.target.result;
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                    fotoForm.submit(); 
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

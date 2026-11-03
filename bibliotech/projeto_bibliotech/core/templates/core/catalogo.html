@@ -1,0 +1,137 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}BiblioTech - Catálogo de Livros{% endblock %}
+
+{% block content %}
+<div class="catalog-page">
+
+    <!-- Cabeçalho do Catálogo -->
+    <div class="page-header">
+        <div class="page-header-left">
+            <a href="{% if user.is_authenticated %}{% url 'home' %}{% else %}{% url 'tela_inicial' %}{% endif %}" class="back-arrow" title="Voltar">&lt;</a>
+            <div>
+                <h1>Catálogo de Livros</h1>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">
+                    Total de <strong>{{ total_acervo }}</strong> exemplar(es) cadastrado(s) na biblioteca
+                </p>
+            </div>
+        </div>
+
+        {% if user.is_staff %}
+            <a href="{% url 'adicionar_livro' %}" class="btn-add-book">
+                <span>➕</span> Cadastrar Novo Livro
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- Barra de Filtros por Categoria -->
+    <div class="catalog-actions-bar">
+        <div class="category-filter-pills">
+            <a href="{% url 'catalogo' %}" class="pill-filter {% if not query and not categoria_selecionada %}active{% endif %}">
+                Todos os Livros
+            </a>
+            {% for cat in todas_categorias %}
+            <a href="{% url 'catalogo' %}?categoria={{ cat.id }}" class="pill-filter {% if categoria_selecionada.id == cat.id %}active{% endif %}">
+                {{ cat.nome }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Resultados Filtrados (Busca ou Categoria Específica) -->
+    {% if livros_filtrados is not None %}
+        <div class="category-block">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <h2 class="category-tab">
+                    {% if query %}
+                        Resultados para "{{ query }}" ({{ livros_filtrados.count }})
+                    {% elif categoria_selecionada %}
+                        Categoria: {{ categoria_selecionada.nome }} ({{ livros_filtrados.count }})
+                    {% endif %}
+                </h2>
+                <a href="{% url 'catalogo' %}" style="color: var(--accent-gold); font-size: 0.88rem; font-weight: 600; text-decoration: underline;">
+                    ✕ Limpar filtros
+                </a>
+            </div>
+
+            <div class="book-grid" style="flex-wrap: wrap; overflow-x: visible;">
+                {% for livro in livros_filtrados %}
+                <a href="{% url 'livro_detalhe' livro.id %}" class="book-card">
+                    <div class="book-card-cover">
+                        <img src="{{ livro.capa.url }}" alt="Capa de {{ livro.titulo }}" onerror="this.src='{% static 'images/open-book2.png' %}';">
+                        {% if livro.is_available %}
+                            <span class="book-card-badge badge-available">Disponível</span>
+                        {% else %}
+                            <span class="book-card-badge badge-unavailable">Esgotado</span>
+                        {% endif %}
+                    </div>
+                    <div class="book-card-body">
+                        <h4 class="book-card-title">{{ livro.titulo }}</h4>
+                        <span class="book-card-author">{{ livro.autor }}</span>
+                    </div>
+                </a>
+                {% empty %}
+                <div style="padding: 40px; text-align: center; width: 100%; color: var(--text-muted);">
+                    <p style="font-size: 1.1rem; margin-bottom: 10px;">Nenhum livro encontrado com esses critérios.</p>
+                    <a href="{% url 'catalogo' %}" class="btn-theme-toggle" style="display: inline-flex; width: fit-content; margin: 0 auto;">Ver todo o catálogo</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    <!-- Visão Agrupada por Categorias (Padrão) -->
+    {% else %}
+        {% for categoria, livros in livros_por_categoria.items %}
+        <div class="category-block">
+            <h2 class="category-tab">{{ categoria }}</h2>
+
+            <div class="carousel-container">
+                <button 
+                    type="button"
+                    class="carousel-arrow prev" 
+                    aria-label="Livros anteriores da categoria {{ categoria }}" 
+                    onclick="scrollCarousel('{{ categoria|slugify }}-grid', -1)"> 
+                    &lt; 
+                </button>
+
+                <div class="book-grid" id="{{ categoria|slugify }}-grid">
+                    {% for livro in livros %}
+                    <a href="{% url 'livro_detalhe' livro.id %}" class="book-card">
+                        <div class="book-card-cover">
+                            <img src="{{ livro.capa.url }}" alt="Capa de {{ livro.titulo }}" onerror="this.src='{% static 'images/open-book2.png' %}';">
+                            {% if livro.is_available %}
+                                <span class="book-card-badge badge-available">Disponível</span>
+                            {% else %}
+                                <span class="book-card-badge badge-unavailable">Esgotado</span>
+                            {% endif %}
+                        </div>
+                        <div class="book-card-body">
+                            <h4 class="book-card-title">{{ livro.titulo }}</h4>
+                            <span class="book-card-author">{{ livro.autor }}</span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div> 
+
+                <button
+                    type="button"
+                    class="carousel-arrow next" 
+                    aria-label="Próximos livros da categoria {{ categoria }}" 
+                    onclick="scrollCarousel('{{ categoria|slugify }}-grid', 1)"> 
+                    &gt; 
+                </button>
+            </div> 
+        </div>
+        {% empty %}
+        <div style="padding: 50px; text-align: center; color: var(--text-muted);">
+            <p style="font-size: 1.2rem;">Nenhum livro cadastrado no momento.</p>
+            {% if user.is_staff %}
+                <a href="{% url 'adicionar_livro' %}" class="btn-add-book" style="margin-top: 16px; display: inline-flex;">Cadastrar Primeiro Livro</a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}BiblioTech - Minhas Reservas{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    
+    <!-- Cabeçalho -->
+    <div class="page-header">
+        <div class="page-header-left">
+            <a href="{% url 'home' %}" class="back-arrow" title="Voltar ao início">&lt;</a>
+            <div>
+                <h1>Minhas Reservas</h1>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">
+                    Acompanhe a preparação, prazos e retiradas dos seus livros
+                </p>
+            </div>
+        </div>
+        <a href="{% url 'catalogo' %}" class="btn-theme-toggle" style="font-size: 0.88rem;">
+            🔍 Buscar mais livros
+        </a>
+    </div>
+
+    <!-- Lista de Reservas em Andamento -->
+    <section>
+        <h3 class="category-tab" style="margin-bottom: 20px;">📖 Empréstimos & Reservas Ativas</h3>
+
+        <div class="reservas-grid">
+            {% for reserva in reservas %}
+            <div class="reservation-card">
+                <a href="{% url 'livro_detalhe' reserva.livro.id %}" class="reservation-card-cover">
+                    <img src="{{ reserva.livro.capa.url }}" alt="Capa de {{ reserva.livro.titulo }}" onerror="this.src='{% static 'images/open-book2.png' %}';">
+                </a>
+
+                <div class="reservation-card-info">
+                    <div>
+                        <span class="status-badge {{ reserva.status }}">
+                            {{ reserva.get_status_display }}
+                        </span>
+                        <h3 style="margin-top: 8px;">
+                            <a href="{% url 'livro_detalhe' reserva.livro.id %}" style="color: inherit;">
+                                {{ reserva.livro.titulo }}
+                            </a>
+                        </h3>
+                        <p style="font-size: 0.82rem; color: var(--accent-gold); margin-top: 2px;">
+                            {{ reserva.livro.autor }}
+                        </p>
+                    </div>
+
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 10px; line-height: 1.4;">
+                        {% if reserva.status == 'preparando' %}
+                            <p>📅 Solicitado em: <strong>{{ reserva.data_reserva|date:"d/m/Y" }}</strong></p>
+                            <p>⏳ Disponível no balcão em: <strong>{{ reserva.data_disponivel|date:"d/m/Y" }}</strong></p>
+                        
+                        {% elif reserva.status == 'aguardando' %}
+                            <p style="color: var(--color-purple); font-weight: 700;">
+                                🎉 Livro disponível no balcão da biblioteca!
+                            </p>
+                            <p>Retire com sua identificação de aluno.</p>
+
+                        {% elif reserva.status == 'ativa' %}
+                            <p>📅 Retirado em: <strong>{{ reserva.data_emprestimo|date:"d/m/Y" }}</strong></p>
+                            <p style="color: var(--color-info); font-weight: 600;">
+                                ⏱️ Devolução até: <strong>{{ reserva.data_devolucao|date:"d/m/Y" }}</strong>
+                            </p>
+
+                        {% elif reserva.status == 'atrasado' %}
+                            <p style="color: var(--color-danger); font-weight: 700;">
+                                ⚠️ Venceu em: <strong>{{ reserva.data_devolucao|date:"d/m/Y" }}</strong>
+                            </p>
+                            <p style="color: var(--color-danger); font-size: 0.8rem;">
+                                Compareça à biblioteca escolar com urgência.
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.78rem; color: var(--text-muted);">
+                            📍 Corredor {{ reserva.livro.corredor|default:"--" }} / Prateleira {{ reserva.livro.prateleira|default:"--" }}
+                        </span>
+                        <a href="{% url 'livro_detalhe' reserva.livro.id %}" style="font-size: 0.82rem; color: var(--accent-gold); font-weight: 600;">
+                            Ver livro &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div style="grid-column: 1 / -1; padding: 40px; text-align: center; background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                <p style="font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 14px;">
+                    Você não possui nenhuma reserva ativa no momento.
+                </p>
+                <a href="{% url 'catalogo' %}" class="btn-theme-toggle" style="display: inline-flex; width: fit-content; margin: 0 auto;">
+                    🔍 Explorar catálogo de livros
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Histórico de Devoluções Recentes -->
+    {% if historico %}
+    <section style="margin-top: 20px;">
+        <h3 class="category-tab" style="margin-bottom: 16px;">✅ Histórico de Leituras Concluídas</h3>
+        <div class="table-responsive-wrapper">
+            <table class="tabela-admin">
+                <thead>
+                    <tr>
+                        <th>Livro</th>
+                        <th>Autor</th>
+                        <th>Data de Devolução</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in historico %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'livro_detalhe' item.livro.id %}" style="font-weight: 600; color: inherit;">
+                                {{ item.livro.titulo }}
+                            </a>
+                        </td>
+                        <td>{{ item.livro.autor }}</td>
+                        <td>{{ item.data_devolucao_efetiva|date:"d/m/Y"|default:item.data_devolucao|date:"d/m/Y" }}</td>
+                        <td>
+                            <span class="status-badge devolvido">Devolvido com Sucesso</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    {% endif %}
+
+</div>
+{% endblock %}

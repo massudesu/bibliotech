@@ -1,0 +1,144 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}BiblioTech - Gerenciar Reservas (Admin){% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    
+    <!-- Cabeçalho -->
+    <div class="page-header">
+        <div class="page-header-left">
+            <a href="{% url 'home' %}" class="back-arrow" title="Voltar ao início">&lt;</a>
+            <div>
+                <h1>Gerenciamento de Reservas & Empréstimos</h1>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">
+                    Controle de retiradas, preparação de exemplares e devoluções da biblioteca
+                </p>
+            </div>
+        </div>
+        <a href="{% url 'adicionar_livro' %}" class="btn-add-book">
+            ➕ Novo Livro
+        </a>
+    </div>
+
+    <!-- Filtros de Status & Busca -->
+    <div class="admin-filters-bar">
+        <div class="category-filter-pills">
+            <a href="{% url 'reservas_adm' %}" class="pill-filter {% if not status_filter %}active{% endif %}">
+                Todos ({{ total_geral }})
+            </a>
+            <a href="{% url 'reservas_adm' %}?status=preparando" class="pill-filter {% if status_filter == 'preparando' %}active{% endif %}">
+                ⏳ Em Preparação ({{ total_preparando }})
+            </a>
+            <a href="{% url 'reservas_adm' %}?status=aguardando" class="pill-filter {% if status_filter == 'aguardando' %}active{% endif %}">
+                🔔 Aguardando Retirada ({{ total_aguardando }})
+            </a>
+            <a href="{% url 'reservas_adm' %}?status=ativa" class="pill-filter {% if status_filter == 'ativa' %}active{% endif %}">
+                📖 Empréstimos Ativos ({{ total_ativa }})
+            </a>
+            <a href="{% url 'reservas_adm' %}?status=atrasado" class="pill-filter {% if status_filter == 'atrasado' %}active{% endif %}" style="border-color: var(--color-danger); color: var(--color-danger);">
+                ⚠️ Atrasados ({{ total_atrasado }})
+            </a>
+            <a href="{% url 'reservas_adm' %}?status=devolvido" class="pill-filter {% if status_filter == 'devolvido' %}active{% endif %}">
+                ✅ Devolvidos ({{ total_devolvido }})
+            </a>
+        </div>
+
+        <!-- Busca por Aluno ou Livro -->
+        <form method="GET" action="{% url 'reservas_adm' %}" style="display: flex; gap: 8px;">
+            {% if status_filter %}
+                <input type="hidden" name="status" value="{{ status_filter }}">
+            {% endif %}
+            <input type="text" name="busca" placeholder="Filtrar aluno ou livro..." value="{{ busca }}" 
+                   style="height: 38px; padding: 0 14px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-pill); color: var(--text-primary); font-size: 0.88rem;">
+            <button type="submit" class="btn-theme-toggle" style="padding: 0 16px; height: 38px;">
+                Filtrar
+            </button>
+        </form>
+    </div>
+
+    <!-- Tabela Responsiva de Reservas -->
+    <div class="table-responsive-wrapper">
+        <table class="tabela-admin">
+            <thead>
+                <tr>
+                    <th>Livro</th>
+                    <th>Aluno / Usuário</th>
+                    <th>Localização</th>
+                    <th>Data Solicitação</th>
+                    <th>Devolução Prevista</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reserva in reservas %}
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <img src="{{ reserva.livro.capa.url }}" alt="{{ reserva.livro.titulo }}" onerror="this.src='{% static 'images/open-book2.png' %}';" 
+                                 style="width: 32px; height: 44px; object-fit: cover; border-radius: 4px;">
+                            <div>
+                                <a href="{% url 'livro_detalhe' reserva.livro.id %}" style="font-weight: 700; color: inherit;">
+                                    {{ reserva.livro.titulo }}
+                                </a>
+                                <p style="font-size: 0.78rem; color: var(--accent-gold); margin: 0;">{{ reserva.livro.autor }}</p>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td>
+                        <a href="{% url 'ver_perfil_usuario' reserva.usuario.id %}" style="display: flex; flex-direction: column; color: inherit;">
+                            <strong style="color: var(--accent-gold); text-decoration: underline;">
+                                {{ reserva.usuario.first_name|default:reserva.usuario.username }} {{ reserva.usuario.last_name }}
+                            </strong>
+                            <span style="font-size: 0.78rem; color: var(--text-muted);">@{{ reserva.usuario.username }}</span>
+                        </a>
+                    </td>
+
+                    <td>
+                        <span style="font-size: 0.85rem; background: var(--bg-secondary); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-subtle);">
+                            C: <strong>{{ reserva.livro.corredor|default:"-" }}</strong> / P: <strong>{{ reserva.livro.prateleira|default:"-" }}</strong>
+                        </span>
+                    </td>
+
+                    <td>
+                        <span style="font-size: 0.88rem;">{{ reserva.data_reserva|date:"d/m/Y" }}</span>
+                    </td>
+
+                    <td>
+                        {% if reserva.data_devolucao %}
+                            <span style="font-size: 0.88rem; font-weight: 600; {% if reserva.status == 'atrasado' %}color: var(--color-danger);{% endif %}">
+                                {{ reserva.data_devolucao|date:"d/m/Y" }}
+                            </span>
+                        {% else %}
+                            <span style="color: var(--text-muted); font-size: 0.82rem;">Não definida</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <span class="status-badge {{ reserva.status }}">
+                            {{ reserva.get_status_display }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <a href="{% url 'editar_reserva_adm' reserva.id %}" class="btn-edit-pequeno">
+                            ✏️ Editar / Atualizar
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                        Nenhuma reserva encontrada para os filtros selecionados.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}

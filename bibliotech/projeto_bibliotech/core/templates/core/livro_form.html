@@ -1,0 +1,121 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}BiblioTech - {{ titulo_pagina }}{% endblock %}
+
+{% block content %}
+<div class="form-page-container">
+    
+    <div class="page-header">
+        <div class="page-header-left">
+            <a href="javascript:history.back()" class="back-arrow" title="Voltar">&lt;</a>
+            <h1>{{ titulo_pagina }}</h1>
+        </div>
+    </div>
+
+    <div class="modern-form-card">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="messages" style="margin-bottom: 20px;">
+                    {% for error in form.non_field_errors %}
+                        <li class="error"><div class="message-content"><span>⚠️ {{ error }}</span></div></li>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Imagem de Capa com Pré-visualização Instantânea -->
+            <div class="image-upload-wrapper">
+                <label for="id_capa" class="image-upload-label" title="Clique para escolher a capa">
+                    <img src="{% if form.instance.capa %}{{ form.instance.capa.url }}{% else %}{% static 'images/open-book2.png' %}{% endif %}" 
+                         alt="Capa do Livro" 
+                         class="image-previa" 
+                         id="image-previa">
+                    <div class="upload-overlay-text">
+                        📷 {% if form.instance.pk %}Alterar Capa{% else %}Adicionar Capa{% endif %}
+                    </div>
+                </label>
+                <div style="display: none;">
+                    {{ form.capa }}
+                </div>
+                {% if form.capa.errors %}
+                    <div class="form-field-error">{{ form.capa.errors|first }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Campos do Formulário -->
+            <div class="form-group">
+                <label for="id_titulo">Título do Livro *</label>
+                {{ form.titulo }}
+                {% if form.titulo.errors %}<div class="form-field-error">{{ form.titulo.errors|first }}</div>{% endif %}
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_autor">Autor(a) *</label>
+                    {{ form.autor }}
+                    {% if form.autor.errors %}<div class="form-field-error">{{ form.autor.errors|first }}</div>{% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="id_editora">Editora *</label>
+                    {{ form.editora }}
+                    {% if form.editora.errors %}<div class="form-field-error">{{ form.editora.errors|first }}</div>{% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_categorias">Categorias / Gêneros Literários</label>
+                <div style="max-height: 160px; overflow-y: auto; background: var(--bg-secondary); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px;">
+                    {{ form.categorias }}
+                </div>
+                {% if form.categorias.errors %}<div class="form-field-error">{{ form.categorias.errors|first }}</div>{% endif %}
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_quantidade">Quantidade em Estoque *</label>
+                    {{ form.quantidade }}
+                    {% if form.quantidade.errors %}<div class="form-field-error">{{ form.quantidade.errors|first }}</div>{% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="id_corredor">Corredor</label>
+                    {{ form.corredor }}
+                    {% if form.corredor.errors %}<div class="form-field-error">{{ form.corredor.errors|first }}</div>{% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_prateleira">Prateleira</label>
+                {{ form.prateleira }}
+                {% if form.prateleira.errors %}<div class="form-field-error">{{ form.prateleira.errors|first }}</div>{% endif %}
+            </div>
+
+            <button type="submit" class="btn-save">
+                💾 Salvar Exemplar no Acervo
+            </button>
+        </form>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const capaInput = document.getElementById('id_capa');
+        const imagePrevia = document.getElementById('image-previa');
+
+        if (capaInput && imagePrevia) {
+            capaInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePrevia.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
