@@ -1,4 +1,4 @@
-# 🚀 Guia Rápido: Como Abrir e Rodar o Projeto
+#  Guia Rápido: Como Abrir e Rodar o Projeto
 
 Siga este passo a passo simplificado para iniciar o projeto no seu computador:
 
